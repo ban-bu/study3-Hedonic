@@ -470,7 +470,7 @@ def show_low_recommendation_without_explanation():
     # 添加提示信息
     st.markdown("""
     <div style="padding: 10px; background-color: #f8f9fa; border-radius: 5px; margin-bottom: 20px;">
-    <p style="margin: 0; font-size: 16px;">请根据以下关键词生成T恤图案。选择几个关键词后点击"Generate T-shirt Design"按钮即可自动生成T恤设计。生成后，您可以下载或确认设计。</p>
+    <p style="margin: 0; font-size: 16px;">Please generate a T-shirt design based on the following keywords. After selecting a few keywords, click the "Generate T-shirt Design" button to automatically generate a T-shirt design. After generation, you can download or confirm the design.</p>
     </div>
     """, unsafe_allow_html=True)
     
