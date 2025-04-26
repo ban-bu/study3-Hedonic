@@ -35,7 +35,7 @@ GPT4O_MINI_BASE_URL = "https://api.deepbricks.ai/v1/"
 from svg_utils import convert_svg_to_png
 
 # 设置默认关键词风格，取代UI上的选择按钮
-DEFAULT_KEYWORD_STYLE = "functional"  # 可以设置为"hedonic"或"functional"
+DEFAULT_KEYWORD_STYLE = "hedonic"  # 可以设置为"hedonic"或"functional"
 
 def get_design_keywords(keyword_style):
     """获取设计关键词列表"""
@@ -131,7 +131,7 @@ def generate_vector_image(prompt):
         )
     except Exception as e:
         st.error(f"Error calling API: {e}")
-        return None
+        return None, {"error": f"Error calling API: {e}"}
 
     if resp and len(resp.data) > 0 and resp.data[0].url:
         image_url = resp.data[0].url
@@ -141,16 +141,18 @@ def generate_vector_image(prompt):
                 content_type = image_resp.headers.get("Content-Type", "")
                 if "svg" in content_type.lower():
                     # 使用集中的SVG处理函数
-                    return convert_svg_to_png(image_resp.content)
+                    image = convert_svg_to_png(image_resp.content)
+                    return image, {"prompt": prompt, "image_url": image_url}
                 else:
-                    return Image.open(BytesIO(image_resp.content)).convert("RGBA")
+                    image = Image.open(BytesIO(image_resp.content)).convert("RGBA")
+                    return image, {"prompt": prompt, "image_url": image_url}
             else:
                 st.error(f"Failed to download image, status code: {image_resp.status_code}")
         except Exception as download_err:
             st.error(f"Error requesting image: {download_err}")
     else:
         st.error("Could not get image URL from API response.")
-    return None
+    return None, {"error": "Failed to generate or download image"}
 
 def change_shirt_color(image, color_hex, apply_texture=False, fabric_type=None):
     """Change T-shirt color with optional fabric texture"""
@@ -391,7 +393,7 @@ def generate_complete_design(design_prompt, variation_id=None):
             
             # 修改Logo提示词，确保生成的Logo有白色背景，没有透明部分
             logo_prompt = f"Create a Logo design for printing: {logo_desc}. Requirements: 1. Simple professional design 2. NO TRANSPARENCY background (NO TRANSPARENCY) 3. Clear and distinct graphic 4. Good contrast with colors that will show well on fabric"
-            logo_image = generate_vector_image(logo_prompt)
+            logo_image, _ = generate_vector_image(logo_prompt)
         
         # 最终设计 - 不添加文字
         final_design = colored_shirt
@@ -571,20 +573,24 @@ def show_low_recommendation_without_explanation():
                 st.session_state.user_prompt = prompt
                 
                 # 获取设计建议
-                design_suggestions = get_ai_design_suggestions(prompt, st.session_state.keyword_style)
+                design_suggestions = get_ai_design_suggestions(prompt)
                 
                 # 生成设计
                 generated_designs = []
-                for i, suggestion in enumerate(design_suggestions[:3]):  # 限制为前3个建议
-                    design_img, design_info = generate_vector_image(
-                        suggestion["design_description"],
-                        st.session_state.original_tshirt
-                    )
-                    generated_designs.append({
-                        "image": design_img,
-                        "info": design_info,
-                        "suggestion": suggestion
-                    })
+                # 修改为直接处理单个设计建议字典，而不是循环处理列表
+                if "error" not in design_suggestions:
+                    # 构建设计描述
+                    design_description = f"T-shirt design with {design_suggestions.get('color', {}).get('name', 'custom color')} color, {design_suggestions.get('fabric', 'cotton')} fabric, featuring {design_suggestions.get('logo', 'a simple logo')}"
+                    
+                    # 生成图像
+                    design_img, design_info = generate_vector_image(design_description)
+                    
+                    if design_img:
+                        generated_designs.append({
+                            "image": design_img,
+                            "info": design_info,
+                            "suggestion": design_suggestions
+                        })
                 
                 st.session_state.generated_designs = generated_designs
                 if generated_designs:
