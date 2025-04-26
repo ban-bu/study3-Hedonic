@@ -1149,50 +1149,30 @@ def show_low_recommendation_with_explanation():
                 st.success("已清除所有设计并恢复原始T恤")
                 st.rerun()
             
-            # 下载和确认按钮
-            dl_col1, dl_col2 = st.columns(2)
-            with dl_col1:
+            # 下载按钮 (在主区域底部)
+            if st.session_state.final_design is not None:
+                st.markdown("---")
+                # 移除两列布局
+                # download_col, next_col = st.columns(2)
+                
+                # 直接显示下载按钮，不使用列布局
                 buf = BytesIO()
                 st.session_state.final_design.save(buf, format="PNG")
                 buf.seek(0)
                 st.download_button(
-                    label="💾 Download design",
+                    label="💾 下载设计图",
                     data=buf,
-                    file_name="custom_tshirt.png",
-                    mime="image/png"
+                    file_name="ai_tshirt_design.png",
+                    mime="image/png",
+                    use_container_width=True  # 使按钮占据整个宽度
                 )
-            
-            with dl_col2:
-                # Confirm completion button
-                if st.button("Confirm completion"):
-                    st.session_state.page = "survey"
-                    st.rerun()
-            
-            # 添加返回主页按钮
-            st.markdown("---")  # 添加分隔线
-            if st.button("🏠 Retrun to Main Page"):
-                # 重置所有相关的session state
-                keys_to_reset = [
-                    'base_image', 'current_image', 'final_design', 'generated_design',
-                    'applied_text', 'applied_logo', 'generated_logo', 'logo_auto_generated',
-                    'show_generated_logo', 'shirt_color_hex', 'current_applied_color',
-                    'fabric_type', 'current_applied_fabric', 'ai_suggestions',
-                    'original_base_image', 'current_box_position', 'text_layer',
-                    'text_size_info', 'text_position', 'font_debug_info',
-                    'loaded_font_path', 'using_fallback_text', 'design_area',
-                    'ai_suggested_colors', 'ai_suggested_texts', 'ai_suggested_fabrics',
-                    'ai_suggested_logos', 'logo_prompt', 'selected_preset_logo',
-                    'temp_text_selection', 'ai_text_suggestion'
-                ]
                 
-                # 清除所有状态变量
-                for key in keys_to_reset:
-                    if key in st.session_state:
-                        del st.session_state[key]
-                
-                # 设置页面为welcome
-                st.session_state.page = "welcome"
-                st.rerun()
+                # 移除确认按钮和问卷相关功能
+                # with next_col:
+                #     # 确认完成按钮
+                #     if st.button("✅ Confirm"):
+                #         st.session_state.page = "survey"
+                #         st.rerun()
     
     with controls_col:
         # 操作区，包含AI建议和其他控制选项

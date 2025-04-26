@@ -35,7 +35,7 @@ GPT4O_MINI_BASE_URL = "https://api.deepbricks.ai/v1/"
 from svg_utils import convert_svg_to_png
 
 # 设置默认关键词风格，取代UI上的选择按钮
-DEFAULT_KEYWORD_STYLE = "hedonic"  # 可以设置为"hedonic"或"functional"
+DEFAULT_KEYWORD_STYLE = "functional"  # 可以设置为"hedonic"或"functional"
 
 def get_design_keywords(keyword_style):
     """获取设计关键词列表"""

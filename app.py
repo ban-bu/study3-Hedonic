@@ -42,7 +42,7 @@ from low_no_explanation import show_low_recommendation_without_explanation
 from low_with_explanation import show_low_recommendation_with_explanation
 from high_no_explanation import show_high_recommendation_without_explanation
 from high_with_explanation import show_high_recommendation_with_explanation
-from medium_no_explanation import show_medium_recommendation_without_explanation
+
 
 # Page configuration
 st.set_page_config(
